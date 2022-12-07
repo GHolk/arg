@@ -17,7 +17,8 @@ function arg(
 		permissive = false,
 		stopAtPositional = false,
 		splitUnknownArguments = true,
-		allowNegativePositional = false
+		allowNegativePositional = false,
+		allowSingleHyphenLongOption = false
 	} = {}
 ) {
 	if (!opts) {
@@ -82,7 +83,7 @@ function arg(
 			);
 		}
 
-		if (key[1] !== '-' && key.length > 2) {
+		if (key[1] !== '-' && key.length > 2 && !allowSingleHyphenLongOption) {
 			throw new ArgError(
 				`short argument keys (with a single hyphen) must have only one character: ${key}`,
 				'ARG_CONFIG_SHORTOPT_TOOLONG'
@@ -117,23 +118,26 @@ function arg(
 			let separatedArguments = [];
 			if (wholeArg[1] === '-' || wholeArg.length === 2) {
 				separatedArguments.push(wholeArg);
+			} else if (allowSingleHyphenLongOption && wholeArg in handlers) {
+				separatedArguments.push(wholeArg);
 			} else {
+				let allArgumentsExist = true;
 				for (const char of wholeArg.slice(1)) {
+					const flag = `-${char}`;
+					if (!(flag in handlers)) {
+						allArgumentsExist = false;
+					}
 					separatedArguments.push(`-${char}`);
 				}
-			}
-
-			if (!splitUnknownArguments) {
-				const allArgumentsExist = separatedArguments.every(
-					(flag) => flag in handlers
-				);
-				if (!allArgumentsExist) separatedArguments = [wholeArg];
+				if (!splitUnknownArguments && !allArgumentsExist) {
+					separatedArguments = [wholeArg];
+				}
 			}
 
 			for (let j = 0; j < separatedArguments.length; j++) {
 				const arg = separatedArguments[j];
 				const [originalArgName, argStr] =
-					arg[1] === '-' ? arg.split(/=(.*)/, 2) : [arg, undefined];
+					arg.length > 2 ? arg.split(/=(.*)/, 2) : [arg, undefined];
 
 				let argName = originalArgName;
 				while (argName in aliases) {
