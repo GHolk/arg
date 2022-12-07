@@ -38,6 +38,9 @@ declare namespace arg {
 		argv?: string[];
 		permissive?: boolean;
 		stopAtPositional?: boolean;
+		splitUnknownArguments?: boolean;
+		allowNegativePositional?: boolean;
+		allowSingleHyphenLongOption?: boolean;
 	}
 }
 

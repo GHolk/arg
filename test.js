@@ -551,3 +551,68 @@ test('should error if negative numeric argument is passed to non-negative argume
 		)
 	).to.throw(arg.ArgError, 'option requires argument: --str');
 });
+
+test('should allow positional negative numbers if requested', () => {
+	const argv = ['-ab', '-5'];
+
+	const result = arg(
+		{
+			'-a': Boolean,
+			'-b': Boolean
+		},
+		{
+			argv,
+			allowNegativePositional: true
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: ['-5'],
+		'-a': true,
+		'-b': true
+	});
+});
+
+test('should not split unknown argument if requested', () => {
+	const argv = ['-abc', 'foo'];
+
+	const result = arg(
+		{
+			'-a': Boolean,
+			'-b': Boolean
+		},
+		{
+			argv,
+			splitUnknownArguments: false,
+			permissive: true
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: ['-abc', 'foo']
+	});
+});
+
+test('should allow single hyphen long option if requested', () => {
+	const argv = ['-abc', 'foo', '-de', 'bar'];
+
+	const result = arg(
+		{
+			'-abc': String,
+			'-d': Boolean,
+			'-e': Boolean
+		},
+		{
+			argv,
+			allowSingleHyphenLongOption: true
+		}
+	);
+
+	expect(result).to.deep.equal({
+		_: ['bar'],
+		'-d': true,
+		'-e': true,
+		'-abc': 'foo'
+	});
+});
+
