@@ -15,7 +15,9 @@ function arg(
 	{
 		argv = process.argv.slice(2),
 		permissive = false,
-		stopAtPositional = false
+		stopAtPositional = false,
+		splitUnknownArguments = true,
+		allowNegativePositional = false
 	} = {}
 ) {
 	if (!opts) {
@@ -102,6 +104,14 @@ function arg(
 			result._ = result._.concat(argv.slice(i + 1));
 			break;
 		}
+		
+		if (allowNegativePositional && /^-[\d.]/.test(wholeArg)) {
+			const n = Number(wholeArg);
+			if (!Number.isNaN(n)) {
+				result._.push(wholeArg);
+				continue;
+			}
+		}
 
 		if (wholeArg.length > 1 && wholeArg[0] === '-') {
 			let separatedArguments = [];
@@ -113,11 +123,11 @@ function arg(
 				}
 			}
 
-			const allArgumentsExist = separatedArguments.every(
-				(flag) => flag in handlers
-			);
-			if (!allArgumentsExist && permissive) {
-				separatedArguments = [wholeArg];
+			if (!splitUnknownArguments) {
+				const allArgumentsExist = separatedArguments.every(
+					(flag) => flag in handlers
+				);
+				if (!allArgumentsExist) separatedArguments = [wholeArg];
 			}
 
 			for (let j = 0; j < separatedArguments.length; j++) {
