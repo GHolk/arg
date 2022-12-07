@@ -1,11 +1,11 @@
 {
-  "name": "arg",
-  "version": "5.0.2",
-  "description": "Unopinionated, no-frills CLI argument parser",
+  "name": "tridactyl-arg",
+  "version": "5.1.0",
+  "description": "The fork of arg to reach Tridactyl requirement.",
   "main": "index.js",
   "types": "index.d.ts",
-  "repository": "vercel/arg",
-  "author": "Josh Junon <junon@wavetilt.com>",
+  "repository": "GHolk/arg",
+  "author": "Gold Holk <gholk+cassandra@disroot.org>",
   "license": "MIT",
   "files": [
     "index.js",
